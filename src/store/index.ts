@@ -1,11 +1,18 @@
 import { defineStore } from 'pinia';
+import { Alchemy, Network } from 'alchemy-sdk';
 
 export const useStore = defineStore('nftGallery', {
   state: () => {
     return {
+      alchemy: new Alchemy({}),   
+      settings:{
+        apiKey: import.meta.env.VITE_ETHEREUM_API_KEY,
+        network: Network.ETH_MAINNET, 
+      },
       wallet: null,
       collection: null,
       nfts: [],
+      nfts2: [],
       selectedNetwork: 'ethereum',
       networkOptions: [{ name: 'ethereum' }, { name: 'polygon' }],
       loading: false,
@@ -19,11 +26,20 @@ export const useStore = defineStore('nftGallery', {
         (nft: {
           media: { gateway: string }[];
           title: string;
-          id: { tokenId: string };
+          id: { tokenId: string , tokenMetadata: string};
           contract: { address: string };
+          timeLastUpdated: Date ;
           description: string;
+          contractMetadata: {name: string, symbol: string};
+          tokenUri: string;
         }) => {
           return {
+            metaDataUrl: nft.tokenUri,
+            timeLastUpdated: nft.timeLastUpdated,
+            contractMetadata: nft.contractMetadata,
+            metadata: nft.id.tokenMetadata,
+            tokenName: nft.contractMetadata.name,
+            tokenSymbol: nft.contractMetadata.symbol,
             image: nft.media[0].gateway,
             name: nft.title,
             id: nft.id.tokenId,
@@ -84,4 +100,5 @@ export const useStore = defineStore('nftGallery', {
       this.loading = false;
     },
   },
+  
 });
