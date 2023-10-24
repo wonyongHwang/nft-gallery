@@ -45,11 +45,11 @@ function toggleCollection(value) {
           :loading="store.loading"
           :error="!store.wallet ? false : !isValidAddress"
           @change="value => store.setItem('wallet', value)" />
-        <ACheckbox
+        <!-- <ACheckbox
           name="toggle_collection"
           label="Fetch from collection"
           :loading="store.loading"
-          @change="toggleCollection" />
+          @change="toggleCollection" /> -->
       </div>
       <AButton
         v-if="fetchCollection"

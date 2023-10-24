@@ -1,18 +1,35 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from '@/store';
 import { ArrowUpRightIcon } from '@heroicons/vue/24/solid';
+
 
 const store = useStore();
 const blockExplorer = computed(() => {
   return store.selectedNetwork == 'ethereum'
-    ? { name: 'Etherscan', url: 'https://etherscan.io/address' }
+    ? { name: 'Etherscan', url: 'https://sepolia.etherscan.io/address' }
     : { name: 'Polygonscan', url: 'https://polygonscan.com/address' };
+});
+
+import { Network, Alchemy } from "alchemy-sdk";
+
+// Optional config object, but defaults to demo api-key and eth-mainnet.
+const gasPrice = ref(null);
+
+const settings = {
+  apiKey: "YobUjHk5-FZNHnURGwoEft5Ik4fNo753", // Replace with your Alchemy API Key.
+  network: Network.ETH_MAINNET, // Replace with your network.
+};
+const alchemy = new Alchemy(settings);
+
+alchemy.core.getGasPrice().then(price => {
+  gasPrice.value = price / 1000000000;
 });
 </script>
 
 <template>
   <div class="w-4/5 md:w-3/5 pt-10">
+    <p class="text-white text-center pb-4 w-full">gas price = {{ gasPrice }} gwei</p>
     <p class="text-white text-center pb-4 w-full">
       {{ store.message }}
     </p>
