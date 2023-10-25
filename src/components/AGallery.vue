@@ -6,18 +6,18 @@ import { ArrowUpRightIcon } from '@heroicons/vue/24/solid';
 const store = useStore();
 const blockExplorer = computed(() => {
   return store.selectedNetwork == 'ethereum'
-    ? { name: 'Etherscan', url: 'https://etherscan.io/address' }
+    ? { name: 'Etherscan', url: 'https://sepolia.etherscan.io/address' }
     : { name: 'Polygonscan', url: 'https://polygonscan.com/address' };
 });
 </script>
 
 <template>
-  <div class="w-4/5 md:w-3/5 pt-10">
+  <div class="w-4/5 md:w-4/5 pt-auto">
     <p class="text-white text-center pb-4 w-full">
       {{ store.message }}
     </p>
     <div
-      class="w-full grid grid-col-1 md:grid-cols-4 gap-4 overflow-y-auto h-64">
+      class="w-full grid grid-col-1 md:grid-cols-4 gap-4 h-64">
       <div
         v-for="(item, index) in store.gallery"
         :key="index"
@@ -40,6 +40,12 @@ const blockExplorer = computed(() => {
               :is="ArrowUpRightIcon"
               class="h-3 w-3 text-pink-500 inline-flex mr-0.5" />
             {{ blockExplorer.name }}
+          </a>
+          <a href="#" class="text-xs text-pink-500 cursor-pointer" @click="$emit('chgstate', index)">
+            <component
+              :is="ArrowUpRightIcon"
+              class="h-3 w-3 text-pink-500 inline-flex mr-0.5" />
+            API Data 확인
           </a>
         </div>
       </div>
