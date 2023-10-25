@@ -1,19 +1,22 @@
 import { defineStore } from 'pinia';
+import { Alchemy, Network } from 'alchemy-sdk';
 
-//스토어 정의하기
-//pinia는 state, getters, action으로 구성됨.
 export const useStore = defineStore('nftGallery', {
   state: () => {
     return {
+      alchemy: new Alchemy({}),   
+      settings:{
+        apiKey: import.meta.env.VITE_ETHEREUM_API_KEY,
+        network: Network.ETH_MAINNET, 
+      },
       wallet: null,
       collection: null,
       nfts: [],
+      nfts2: [],
       selectedNetwork: 'ethereum',
       networkOptions: [{ name: 'ethereum' }, { name: 'polygon' }],
       loading: false,
       message: '',
-      //ljw 추가 -> 다이아로그창 띄우기 위해서
-      showDialog:false,
     };
   },
   getters: {
@@ -23,24 +26,25 @@ export const useStore = defineStore('nftGallery', {
         (nft: {
           media: { gateway: string }[];
           title: string;
-          id: { tokenId: string };
+          id: { tokenId: string , tokenMetadata: string};
           contract: { address: string };
+          timeLastUpdated: Date ;
           description: string;
-          //ljw api data 를 위해서 추가
-          contractName : { name : string};
-          lastupdated: string;
-          tokenType : {tokenType : string};
+          contractMetadata: {name: string, symbol: string};
+          tokenUri: string;
         }) => {
           return {
+            metaDataUrl: nft.tokenUri,
+            timeLastUpdated: nft.timeLastUpdated,
+            contractMetadata: nft.contractMetadata,
+            metadata: nft.id.tokenMetadata,
+            tokenName: nft.contractMetadata.name,
+            tokenSymbol: nft.contractMetadata.symbol,
             image: nft.media[0].gateway,
             name: nft.title,
             id: nft.id.tokenId,
             address: nft.contract.address,
             description: nft.description,
-            //
-            contractName:nft.contractMetadata.name,
-            lastupdated:nft.timeLastUpdated,
-            tokenType:nft.contractMetadata.tokenType,
           };
         },
       );
@@ -60,7 +64,6 @@ export const useStore = defineStore('nftGallery', {
     },
   },
   actions: {
-    //함수들을 정의한것.
     setItem(item: string, value: string): void {
       this[item] = value;
     },
@@ -69,14 +72,11 @@ export const useStore = defineStore('nftGallery', {
       this.loading = true;
       const baseUrl = `${this.network.url}/${this.network.apiKey}/getNFTs`;
       const fetchUrl = `${baseUrl}/?owner=${this.wallet}`;
-      //console.log('url:'+fetchUrl);
-      
+
       let nfts = await fetch(fetchUrl, { method: 'GET' });
-      nfts = await nfts.json()
-      
+      nfts = await nfts.json();
       //@ts-ignore
       this.nfts = nfts?.ownedNfts;
-      console.log(nfts);
       this.nfts.length === 0
         ? (this.message = `No NFTs found in this wallet on ${this.selectedNetwork}`)
         : (this.message = `Found ${this.nfts.length} NFTs in this wallet...`);
@@ -92,7 +92,6 @@ export const useStore = defineStore('nftGallery', {
 
       let nfts = await fetch(fetchUrl, { method: 'GET' });
       nfts = await nfts.json();
-      //console.log('nftcol');
       //@ts-ignore
       this.nfts = nfts?.nfts;
       this.nfts.length === 0
@@ -101,4 +100,5 @@ export const useStore = defineStore('nftGallery', {
       this.loading = false;
     },
   },
+  
 });
